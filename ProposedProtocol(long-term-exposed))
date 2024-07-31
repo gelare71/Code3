@@ -1,0 +1,142 @@
+
+(* Channel definition *)
+free sh: channel [private]. (* private channel *)
+free ch: channel. (* a general public channel *)
+
+(* Private Terms *)
+free IDi : bitstring [private].
+free PWi : bitstring [private].
+free Bi : bitstring [private].
+free Kta : bitstring [private].
+free SSKey_ta : bitstring [private].
+free SSKey_r : bitstring [private].
+free SSKey_b : bitstring [private].
+
+
+(* Public Terms *)
+
+free IDj : bitstring.
+free IDta : bitstring.
+
+(* Functions or constructors *)
+fun xor(bitstring, bitstring) : bitstring. (* its destructor is xor *)
+fun h(bitstring) : bitstring.
+fun con(bitstring, bitstring) : bitstring.
+fun Gen(bitstring): bitstring.
+fun Rep(bitstring, bitstring): bitstring.
+fun SymEnc(bitstring, bitstring) : bitstring. (* its destructor is SymDec *)
+
+(* Destructors *)
+equation forall m1 : bitstring, m2 : bitstring; xor (xor(m1, m2), m2) = m1.
+reduc forall m : bitstring, key : bitstring; SymDec(SymEnc(m, key), key) = m.
+
+(* queries *)
+(* the following queries indicate the provision of perfect forward secrecy *)
+query attacker (SSKey_ta).
+query attacker (SSKey_r).
+query attacker (SSKey_b).
+
+(* the following queries indicate the resistance of protocol against "key compromise impersonation attack" *)
+
+query id : bitstring; inj-event (OBUAuth(id)) ==> inj-event (OBUStart(id)).
+query id : bitstring; inj-event (RSUAuth(id)) ==> inj-event (RSUStart(id)).
+
+
+(* Events *)
+event OBUStart(bitstring).
+event OBUAuth(bitstring).
+event RSUStart(bitstring).
+event RSUAuth(bitstring).
+
+let POBU =
+let (a: bitstring, b: bitstring) = Gen(Bi) in
+new n1 : bitstring;
+let A1 = h(con(IDi,con(PWi, n1))) in
+let A2 = h(con(IDi,n1)) in
+out (sh, (A1,A2));
+in (sh, (PIDi : bitstring, A3 : bitstring));
+let B1 = xor(n1, h(con(IDi,con(PWi,a)))) in
+let B2 = h(con(A1,A2)) in
+! (event OBUStart(IDi);
+let a' = Rep (Bi,b) in
+let n1' = xor(B1, h(con(IDi,con(PWi,a')))) in
+let A1' = h(con(IDi,con(PWi, n1'))) in
+let A2' = h(con(IDi,n1')) in
+let B2' = h(con(A1',A2')) in
+if B2 = B2' then
+new n2 : bitstring;
+new T1 : bitstring;
+let B3 = xor(A1',A3) in
+let B4 = xor(h(B3),n2) in
+let B5 = h(con(PIDi,con(IDj,con(IDta,con(B3,con(A2',con(n2,T1))))))) in
+out (ch, (PIDi,T1,B4,B5,IDj,IDta));
+in (ch, (xD1 : bitstring, xD2 : bitstring, xD3 : bitstring, xD4 : bitstring, xT4 : bitstring));
+let n3' = xor(xD1,h(con(n2,con(B3,con(A2',xT4))))) in
+let n4' = xor(xD2,h(con(B3,con(n3',xT4)))) in
+let SSkeyB = h(con(A2',con(n2,con(n3',n4')))) in
+out(ch,SymEnc(SSKey_b,SSkeyB));
+let D3' = h(con(SSkeyB,con(A2',con(n3',con(n4',xT4))))) in
+if xD3 = D3' then
+let PIDinew' = xor(xD4,h(con(SSkeyB,con(PIDi,xT4)))) in
+let PIDi = PIDinew' in
+0).
+
+let PTA =
+in (sh, (A1 : bitstring, A2 : bitstring));
+new PIDi : bitstring;
+let A3 = xor(A1,h(con(IDta,con(Kta,A2)))) in
+out (sh, (A3,PIDi));
+new nj : bitstring;
+let Key = xor(Kta,xor(IDj,nj)) in
+out (sh, Key);
+in (ch, (xPIDi : bitstring, xB4 : bitstring, xB5 : bitstring, xT1 : bitstring , xIDj : bitstring, xIDta : bitstring));
+if xIDta = IDta then
+let B3 = h(con(xIDta,con(Kta,A2))) in
+let n2' = xor(h(B3),xB4) in
+let B5' = h(con(xPIDi,con(xIDj,con(xIDta,con(B3,con(A2,con(n2',xT1))))))) in
+if (B5' = xB5) then
+event OBUAuth(IDi);
+new T2 : bitstring;
+new n3 : bitstring;
+let Key' = xor(Kta,xor(xIDj,nj)) in
+let C1 = xor(n2',h(con(Key',con(xIDj,T2)))) in
+let C2 = xor(n3,h(con(n2',con(Key',T2)))) in
+let C3 = xor(A2,h(con(Key',con(n2',con(n3,T2))))) in
+let C4 = h(con(Key',con(n2',con(n3,con(A2,con(xIDj,T2)))))) in
+out(ch,(C1,C2,C3,C4,T2,xIDj));
+in (ch, (xC5 : bitstring, xC6 : bitstring, xT3: bitstring));
+let n4' = xor(xC5,h(con(Key',con(n3,xT3)))) in
+let SSkeyTA = h(con(A2,con(n2',con(n3,n4')))) in
+out(ch,SymEnc(SSKey_ta,SSkeyTA));
+let C6' =h(con(SSkeyTA,con(xIDj,con(n4',xT3)))) in
+if (xC6 = C6') then
+event RSUAuth(xIDj);
+new T4 : bitstring;
+new PIDinew : bitstring;
+let D1 = xor(n3,h(con(n2',con(B3,con(A2,T4))))) in
+let D2 = xor(n4',h(con(B3,con(n3,T4)))) in
+let D3 = h(con(SSkeyTA,con(A2,con(n3,con(n4',T4))))) in
+let D4 = xor(PIDinew,h(con(SSkeyTA,con(xPIDi,T4)))) in
+out (ch, (D1,D2,D3,D4,T4)).
+
+let PRSU =
+in (sh, Key : bitstring);
+!(in (ch, (xC1 : bitstring, xC2: bitstring, xC3: bitstring, xC4: bitstring, xIDj : bitstring, xT2 : bitstring));
+if xIDj = IDj then
+event RSUStart(xIDj);
+new T3 : bitstring;
+new n4 : bitstring;
+let n2' = xor(xC1,h(con(Key,con(xIDj,xT2)))) in
+let n3' = xor(xC2,h(con(n2',con(Key,xT2)))) in
+let A2' = xor(xC3,h(con(Key,con(n2',con(n3',xT2))))) in
+let C4' = h(con(Key,con(n2',con(n3',con(A2',con(xIDj,xT2)))))) in
+if (C4' = xC4) then
+let SSkeyR = h(con(A2',con(n2',con(n3',n4)))) in
+out(ch,SymEnc(SSKey_r,SSkeyR));
+let C5 = xor(n4,h(con(Key,con(n3',T3)))) in
+let C6 = h(con(SSkeyR,con(IDj,con(n4,T3)))) in
+out (ch,(C5,C6,T3));
+0).
+
+process
+( (!POBU) | (!PRSU) | (!PTA) | (phase 1 ; out (ch, (Kta))))
