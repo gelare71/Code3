@@ -80,23 +80,26 @@ let SSkeyB = h(con(A2',con(n2,con(n3',n4')))) in
 out(ch,SymEnc(SSKey_b,SSkeyB));
 let D3' = h(con(SSkeyB,con(A2',con(n3',con(n4',xT4))))) in
 if xD3 = D3' then
-let PIDinew' = xor(xD4,h(con(SSkeyB,con(PIDi,xT4)))) in
-let PIDi = PIDinew' in
+let (PIDi_new' : bitstring, B3_new' : bitstring) = xor(xD4,h(con(SSkeyB,con(PIDi,xT4)))) in
+ let A3_new = xor(B3_new',A1) in
+let PIDi = PIDi_new' in
+let A3 = A3_new in
 0).
 
 let PTA =
 in (sh, (A1 : bitstring, A2 : bitstring));
 new PIDi : bitstring;
-let A3 = xor(A1,h(con(IDta,con(Kta,A2)))) in
+new ni : bitstring;
+let A3 = xor(A1,h(con(IDta,con(Kta,con(A2,ni))))) in
 out (sh, (A3,PIDi));
 new nj : bitstring;
 let Key = xor(Kta,xor(IDj,nj)) in
 out (sh, Key);
 in (ch, (xPIDi : bitstring, xB4 : bitstring, xB5 : bitstring, xT1 : bitstring , xIDj : bitstring, xIDta : bitstring));
 if xIDta = IDta then
-let B3 = h(con(xIDta,con(Kta,A2))) in
-let n2' = xor(h(B3),xB4) in
-let B5' = h(con(xPIDi,con(xIDj,con(xIDta,con(B3,con(A2,con(n2',xT1))))))) in
+let B3' = h(con(xIDta,con(Kta,con(A2,ni)))) in
+let n2' = xor(h(B3'),xB4) in
+let B5' = h(con(xPIDi,con(xIDj,con(xIDta,con(B3',con(A2,con(n2',xT1))))))) in
 if (B5' = xB5) then
 event OBUAuth(IDi);
 new T2 : bitstring;
@@ -115,11 +118,17 @@ let C6' =h(con(SSkeyTA,con(xIDj,con(n4',xT3)))) in
 if (xC6 = C6') then
 event RSUAuth(xIDj);
 new T4 : bitstring;
-new PIDinew : bitstring;
-let D1 = xor(n3,h(con(n2',con(B3,con(A2,T4))))) in
-let D2 = xor(n4',h(con(B3,con(n3,T4)))) in
+new PIDi_new : bitstring;
+let D1 = xor(n3,h(con(n2',con(B3',con(A2,T4))))) in
+let D2 = xor(n4',h(con(B3',con(n3,T4)))) in
 let D3 = h(con(SSkeyTA,con(A2,con(n3,con(n4',T4))))) in
-let D4 = xor(PIDinew,h(con(SSkeyTA,con(xPIDi,T4)))) in
+let ni_new = xor(ni,n3) in
+let nj_new = xor(nj,n3) in
+let B3_new =  h(con(IDta,con(Kta,con(A2,ni_new)))) in
+let D4 = xor(con(PIDi_new, B3_new),h(con(SSkeyTA,con(xPIDi,T4)))) in
+let ni = ni_new in
+let nj = nj_new in
+let PIDi = PIDi_new in
 out (ch, (D1,D2,D3,D4,T4)).
 
 let PRSU =
@@ -138,6 +147,8 @@ let SSkeyR = h(con(A2',con(n2',con(n3',n4)))) in
 out(ch,SymEnc(SSKey_r,SSkeyR));
 let C5 = xor(n4,h(con(Key,con(n3',T3)))) in
 let C6 = h(con(SSkeyR,con(IDj,con(n4,T3)))) in
+let Key_new = xor(Key,n3') in
+let Key = Key_new in
 out (ch,(C5,C6,T3));
 0).
 
