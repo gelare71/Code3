@@ -5,4 +5,4 @@ Authors: Gelare Oudi Ghadim, Mohammad Dakhilalian, Parvin Rastegari, and Faramar
 
 The followings are necessary explanations:
 
-The file "proposedschem.pv" is the Proverif implementation of the proposed protocol under general assumptions, the file "proposedscheme(long_term_secret_exposed).pv" is the Proverif implementation of the proposed protocol in the case that adversary knows the long_term secret, and the file "proposedscheme(ephemeral_secret_exposed).pv" is the Proverif implementation of the proposed protocol in the case that adversary knows the short_term secrets.
+The file "proposedschem.pv" is the Proverif implementation of the proposed protocol under general assumptions, the file "proposedscheme(long_term_exposed).pv" is the Proverif implementation of the proposed protocol in the case that adversary knows the long_term secret, and the file "proposedscheme(ephemeral_exposed).pv" is the Proverif implementation of the proposed protocol in the case that adversary knows the short_term secrets.
