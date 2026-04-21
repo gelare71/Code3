@@ -1,7 +1,7 @@
 
 Related Paper: Evaluation and Ehnancment of a Privacy Preserving Protocol for Efficient Authentication in IoVs
 
-Authors: Gelare Oudi Ghadim, Mohammad Dakhilalian, Parvin Rastegari, and Faramarz Hendessi
+Authors: Gelare Oudi Ghadim, Mohammad Dakhilalian, Parvin Rastegari, Faramarz Hendessi , Shahrzad Saremi , Rania Shibl , and Hassan Ahmed 
 
 The followings are necessary explanations:
 
